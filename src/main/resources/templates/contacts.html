@@ -205,6 +205,7 @@
             document.getElementById("contact-name").value = "";
             document.getElementById("contact-phone").value = "";
             document.getElementById("contact-email").value = "";
+            document.getElementById("contactModalLabel").textContent = "Add Contact"; // Set modal title
             new bootstrap.Modal(document.getElementById('contactModal')).show();
         }
 
@@ -217,27 +218,28 @@
             document.getElementById("contact-name").value = name;
             document.getElementById("contact-phone").value = phone;
             document.getElementById("contact-email").value = email;
+            document.getElementById("contactModalLabel").textContent = "Edit Contact"; // Set modal title
             new bootstrap.Modal(document.getElementById('contactModal')).show();
-        }
-
-        function deleteContact(resourceName) {
-            if (confirm("Are you sure you want to delete this contact?")) {
-                fetch("/api/contacts/delete", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: new URLSearchParams({ resourceName: resourceName })
-                })
-                .then(response => response.text())
-                .then(() => location.reload())
-                .catch(error => console.error("Error deleting contact:", error));
-            }
         }
 
         function saveContact() {
             const resourceName = document.getElementById("contact-resourceName").value;
+            if (resourceName) {
+                updateContact(resourceName);
+            } else {
+                addContact();
+            }
+        }
+
+        function addContact() {
             const name = document.getElementById("contact-name").value;
-            let phone = document.getElementById("contact-phone").value;
+            let phone = document.getElementById("contact-phone").value.replace(/\s/g, ''); // Remove spaces
             const email = document.getElementById("contact-email").value;
+
+            // Reset field styles
+            document.getElementById("contact-name").style.borderColor = "";
+            document.getElementById("contact-phone").style.borderColor = "";
+            document.getElementById("contact-email").style.borderColor = "";
 
             // CHECK FOR EMPTY FIELDS
             if (!name || !phone || !email) {
@@ -253,7 +255,7 @@
             }
 
             // FORMAT PHONE NUMBER
-            phone = phone.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
+            const formattedPhone = phone.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
 
             // Validate email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -267,10 +269,13 @@
             for (let i = 0; i < contactsList.length; i++) {
                 const contact = contactsList[i];
                 const contactName = contact.querySelector('.fw-semibold').textContent;
-                const contactPhone = contact.querySelector('.text-muted').textContent.replace('📱 ', '');
+                const contactPhone = contact.querySelector('.text-muted').textContent.replace('📱 ', '').replace(/\s/g, ''); // Remove spaces
                 const contactEmail = contact.querySelector('.text-muted').textContent;
 
                 if (contactName === name || contactPhone === phone || contactEmail === email) {
+                    if (contactName === name) document.getElementById("contact-name").style.borderColor = "red";
+                    if (contactPhone === phone) document.getElementById("contact-phone").style.borderColor = "red";
+                    if (contactEmail === email) document.getElementById("contact-email").style.borderColor = "red";
                     alert("Duplicate contact found. Please enter unique contact details.");
                     return;
                 }
@@ -278,22 +283,81 @@
 
             const contactJson = {
                 names: [{ familyName: name }],
-                phoneNumbers: [{ value: phone }],
+                phoneNumbers: [{ value: formattedPhone }],
                 emailAddresses: [{ value: email }]
             };
 
-            const url = resourceName ? "/api/contacts/update" : "/api/contacts";
-            const method = resourceName ? "POST" : "POST";
-            const body = resourceName ? new URLSearchParams({ resourceName, familyName: name, email, phoneNumber: phone }) : JSON.stringify(contactJson);
-
-            fetch(url, {
-                method: method,
-                headers: { "Content-Type": resourceName ? "application/x-www-form-urlencoded" : "application/json" },
-                body: body
+            fetch("/api/contacts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(contactJson)
             })
             .then(response => response.text())
             .then(() => location.reload())
             .catch(error => console.error("Error saving contact:", error));
+        }
+
+        function updateContact(resourceName) {
+            const name = document.getElementById("contact-name").value;
+            let phone = document.getElementById("contact-phone").value.replace(/\s/g, ''); // Remove spaces
+            const email = document.getElementById("contact-email").value;
+
+            // Reset field styles
+            document.getElementById("contact-name").style.borderColor = "";
+            document.getElementById("contact-phone").style.borderColor = "";
+            document.getElementById("contact-email").style.borderColor = "";
+
+            // CHECK FOR EMPTY FIELDS
+            if (!name || !phone || !email) {
+                alert("All fields are required.");
+                return;
+            }
+
+            // VALIDATE PHONE NUMBER
+            const phoneRegex = /^09\d{9}$/;
+            if (!phoneRegex.test(phone)) {
+                alert("Invalid phone number. It should be 11 digits and start with 09.");
+                return;
+            }
+
+            // FORMAT PHONE NUMBER
+            const formattedPhone = phone.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
+
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert("Invalid email address.");
+                return;
+            }
+
+            const contactJson = {
+                resourceName: resourceName,
+                familyName: name,
+                phoneNumber: formattedPhone,
+                email: email
+            };
+
+            fetch("/api/contacts/update", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(contactJson)
+            })
+            .then(response => response.text())
+            .then(() => location.reload())
+            .catch(error => console.error("Error updating contact:", error));
+        }
+
+        function deleteContact(resourceName) {
+            if (confirm("Are you sure you want to delete this contact?")) {
+                fetch("/api/contacts/delete", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ resourceName: resourceName })
+                })
+                .then(response => response.text())
+                .then(() => location.reload())
+                .catch(error => console.error("Error deleting contact:", error));
+            }
         }
         
         document.getElementById("save-contact").addEventListener("click", saveContact);
