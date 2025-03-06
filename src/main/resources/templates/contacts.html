@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Google Contacts</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container-card {
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
+        }
+        .fab:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container container-card">
+        <h3 class="text-center mb-4"> My Contacts</h3>
+        <div id="loading" class="text-center text-muted">Loading contacts...</div>
+        <ul id="contacts-list" class="list-group"></ul>
+    </div>
+
+    
+
+    <button class="fab" onclick="openAddModal()">
+        <i class="ph ph-plus"></i>
+    </button>
+
+    <div class="modal fade" id="contactModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactModalLabel">Add Contact</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="contact-resourceName">
+                    <div class="mb-3">
+                        <label class="form-label">Name:</label>
+                        <input type="text" id="contact-name" class="form-control" placeholder="Enter name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone:</label>
+                        <input type="text" id="contact-phone" class="form-control" placeholder="Enter phone number">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email:</label>
+                        <input type="email" id="contact-email" class="form-control" placeholder="Enter email">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="save-contact">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="contactDetailsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactDetailsModalLabel">Contact Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <img id="contact-details-image" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Name:</label>
+                        <p id="contact-details-name" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone:</label>
+                        <p id="contact-details-phone" class="form-control-plaintext"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email:</label>
+                        <p id="contact-details-email" class="form-control-plaintext"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" id="edit-contact">Edit</button>
+                    <button class="btn btn-danger" id="delete-contact">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch('/api/contacts')
+                .then(response => response.json())
+                .then(data => {
+                    const contactsList = document.getElementById('contacts-list');
+                    const loadingDiv = document.getElementById('loading');
+                    contactsList.innerHTML = "";
+                    
+                    if (data.connections && data.connections.length > 0) {
+                        loadingDiv.style.display = "none";
+                        data.connections.forEach(contact => {
+                            let name = contact.names ? contact.names[0].displayName : 'No Name';
+                            let phone = contact.phoneNumbers && contact.phoneNumbers.length > 0 ? contact.phoneNumbers[0].value : 'No Phone';
+                            let photoUrl = contact.photos && contact.photos.length > 0 ? contact.photos[0].url : null;
+                            
+                            let li = document.createElement('li');
+                            li.className = "list-group-item d-flex align-items-center";
+                            
+                            let contactImage = photoUrl 
+                                ? `<img src="${photoUrl}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">`
+                                : `<div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" 
+                                    style="width: 40px; height: 40px; font-weight: bold;">
+                                    <span>${name.charAt(0)}</span>
+                                </div>`;
+                            
+                            li.innerHTML = `
+                                <div class="d-flex align-items-center" onclick="showContactDetails('${contact.resourceName}', '${name}', '${phone}', '${contact.emailAddresses ? contact.emailAddresses[0].value : ''}', '${photoUrl}')">
+                                    ${contactImage}
+                                    <div>
+                                        <p class="mb-0 fw-semibold">${name}</p>
+                                        <small class="text-muted">📱 ${phone}</small>
+                                    </div>
+                                </div>`;
+                            contactsList.appendChild(li);
+                        });
+                    } else {
+                        loadingDiv.textContent = "No contacts found.";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching contacts:', error);
+                    document.getElementById('loading').textContent = "Failed to load contacts.";
+                });
+        });
+
+        function openAddModal() {
+            document.getElementById("contact-resourceName").value = "";
+            document.getElementById("contact-name").value = "";
+            document.getElementById("contact-phone").value = "";
+            document.getElementById("contact-email").value = "";
+            new bootstrap.Modal(document.getElementById('contactModal')).show();
+        }
+
+        function openUpdateModal(resourceName, name, phone, email) {
+            const detailsModal = bootstrap.Modal.getInstance(document.getElementById('contactDetailsModal'));
+            if (detailsModal) {
+                detailsModal.hide();
+            }
+            document.getElementById("contact-resourceName").value = resourceName;
+            document.getElementById("contact-name").value = name;
+            document.getElementById("contact-phone").value = phone;
+            document.getElementById("contact-email").value = email;
+            new bootstrap.Modal(document.getElementById('contactModal')).show();
+        }
+
+        function deleteContact(resourceName) {
+            if (confirm("Are you sure you want to delete this contact?")) {
+                fetch("/api/contacts/delete", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ resourceName: resourceName })
+                })
+                .then(response => response.text())
+                .then(() => location.reload())
+                .catch(error => console.error("Error deleting contact:", error));
+            }
+        }
+
+        function saveContact() {
+            const resourceName = document.getElementById("contact-resourceName").value;
+            const name = document.getElementById("contact-name").value;
+            const phone = document.getElementById("contact-phone").value;
+            const email = document.getElementById("contact-email").value;
+            
+            const contactJson = {
+                names: [{ familyName: name }],
+                phoneNumbers: [{ value: phone }],
+                emailAddresses: [{ value: email }]
+            };
+
+            const url = resourceName ? "/api/contacts/update" : "/api/contacts";
+            const method = resourceName ? "POST" : "POST";
+            const body = resourceName ? new URLSearchParams({ resourceName, familyName: name, email, phoneNumber: phone }) : JSON.stringify(contactJson);
+
+            fetch(url, {
+                method: method,
+                headers: { "Content-Type": resourceName ? "application/x-www-form-urlencoded" : "application/json" },
+                body: body
+            })
+            .then(response => response.text())
+            .then(() => location.reload())
+            .catch(error => console.error("Error saving contact:", error));
+        }
+        
+        document.getElementById("save-contact").addEventListener("click", saveContact);
+
+        function showContactDetails(resourceName, name, phone, email, photoUrl) {
+            document.getElementById("contact-details-name").textContent = name;
+            document.getElementById("contact-details-phone").textContent = phone;
+            document.getElementById("contact-details-email").textContent = email;
+            document.getElementById("contact-details-image").src = photoUrl || 'https://via.placeholder.com/100';
+
+            document.getElementById("edit-contact").onclick = () => openUpdateModal(resourceName, name, phone, email);
+            document.getElementById("delete-contact").onclick = () => deleteContact(resourceName);
+
+            new bootstrap.Modal(document.getElementById('contactDetailsModal')).show();
+        }
+    </script>
+</body>
+</html>
