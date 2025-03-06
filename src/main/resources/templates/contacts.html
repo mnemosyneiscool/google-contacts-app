@@ -40,16 +40,51 @@
         .fab:hover {
             background-color: #0056b3;
         }
+        .profile-menu {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .profile-icon {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-icon svg {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .dropdown-menu {
+            right: 0;
+            left: auto;
+        }
     </style>
 </head>
+
 <body>
+    <div class="profile-menu">
+        <div class="dropdown">
+            <div class="profile-icon" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <span>Hello, User!</span>
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="256" height="256" viewBox="0 0 256 256" xml:space="preserve">
+                    <defs></defs>
+                    <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
+                        <path d="M 45 0 C 20.147 0 0 20.147 0 45 c 0 24.853 20.147 45 45 45 s 45 -20.147 45 -45 C 90 20.147 69.853 0 45 0 z M 45 22.007 c 8.899 0 16.14 7.241 16.14 16.14 c 0 8.9 -7.241 16.14 -16.14 16.14 c -8.9 0 -16.14 -7.24 -16.14 -16.14 C 28.86 29.248 36.1 22.007 45 22.007 z M 45 83.843 c -11.135 0 -21.123 -4.885 -27.957 -12.623 c 3.177 -5.75 8.144 -10.476 14.05 -13.341 c 2.009 -0.974 4.354 -0.958 6.435 0.041 c 2.343 1.126 4.857 1.696 7.473 1.696 c 2.615 0 5.13 -0.571 7.473 -1.696 c 2.083 -1 4.428 -1.015 6.435 -0.041 c 5.906 2.864 10.872 7.591 14.049 13.341 C 66.123 78.957 56.135 83.843 45 83.843 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+                    </g>
+                </svg>
+            </div>
+            <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                <li><a class="dropdown-item" href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
     <div class="container container-card">
         <h3 class="text-center mb-4"> My Contacts</h3>
         <div id="loading" class="text-center text-muted">Loading contacts...</div>
         <ul id="contacts-list" class="list-group"></ul>
     </div>
-
-    
 
     <button class="fab" onclick="openAddModal()">
         <i class="ph ph-plus"></i>
@@ -119,6 +154,7 @@
     </div>
 
     <script>
+        // RENDER CONTACT LIST
         document.addEventListener("DOMContentLoaded", () => {
             fetch('/api/contacts')
                 .then(response => response.json())
@@ -200,9 +236,46 @@
         function saveContact() {
             const resourceName = document.getElementById("contact-resourceName").value;
             const name = document.getElementById("contact-name").value;
-            const phone = document.getElementById("contact-phone").value;
+            let phone = document.getElementById("contact-phone").value;
             const email = document.getElementById("contact-email").value;
-            
+
+            // CHECK FOR EMPTY FIELDS
+            if (!name || !phone || !email) {
+                alert("All fields are required.");
+                return;
+            }
+
+            // VALIDATE PHONE NUMBER
+            const phoneRegex = /^09\d{9}$/;
+            if (!phoneRegex.test(phone)) {
+                alert("Invalid phone number. It should be 11 digits and start with 09.");
+                return;
+            }
+
+            // FORMAT PHONE NUMBER
+            phone = phone.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
+
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert("Invalid email address.");
+                return;
+            }
+
+            // CHECK FOR DUPLICATE CONTACTS
+            const contactsList = document.getElementById('contacts-list').children;
+            for (let i = 0; i < contactsList.length; i++) {
+                const contact = contactsList[i];
+                const contactName = contact.querySelector('.fw-semibold').textContent;
+                const contactPhone = contact.querySelector('.text-muted').textContent.replace('📱 ', '');
+                const contactEmail = contact.querySelector('.text-muted').textContent;
+
+                if (contactName === name || contactPhone === phone || contactEmail === email) {
+                    alert("Duplicate contact found. Please enter unique contact details.");
+                    return;
+                }
+            }
+
             const contactJson = {
                 names: [{ familyName: name }],
                 phoneNumbers: [{ value: phone }],

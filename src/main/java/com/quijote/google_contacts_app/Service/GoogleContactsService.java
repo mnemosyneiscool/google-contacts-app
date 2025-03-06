@@ -33,12 +33,14 @@ public class GoogleContactsService {
         return accessToken.getTokenValue();
     }
 
+    // READ FUNCTIONALITY
     public String getContacts(String userName) {
         String url = "https://people.googleapis.com/v1/people/me/connections"
                    + "?personFields=names,emailAddresses,phoneNumbers,photos";
         return restTemplate.getForObject(url + "&access_token=" + getAccessToken(userName), String.class);
     }
 
+    // CREATE FUNCTIONALITY
     public String createContacts(String userName, String contactJson) {
         String url = "https://people.googleapis.com/v1/people:createContact";
         HttpHeaders headers = new HttpHeaders();
@@ -71,6 +73,7 @@ public class GoogleContactsService {
         ).setApplicationName("Google Contacts App").build();
     }
 
+    // UPDATE FUNCTIONALITY
     public void updateContact(String resourceName, String familyName, String email, String phoneNumber) throws IOException {
         PeopleService peopleService = createPeopleService();
         Person existingContact = peopleService.people().get(resourceName)
@@ -88,6 +91,7 @@ public class GoogleContactsService {
                 .execute();
     }
 
+    // DELETE FUNCTIONALITY
     public void deleteContact(String resourceName) throws IOException {
         PeopleService peopleService = createPeopleService();
         peopleService.people().deleteContact(resourceName).execute();

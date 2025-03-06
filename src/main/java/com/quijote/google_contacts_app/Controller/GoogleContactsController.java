@@ -18,16 +18,19 @@ public class GoogleContactsController {
         this.googleContactsService = googleContactsService;
     }
 
+    // READ FUNCTIONALITY
     @GetMapping
     public String getAllContacts(@AuthenticationPrincipal OAuth2User principal) {
         return googleContactsService.getContacts(principal.getName());
     }
 
+    // CREATE FUNCTIONALITY
     @PostMapping
     public String createContact(@AuthenticationPrincipal OAuth2User principal, @RequestBody String contactJson) {
         return googleContactsService.createContacts(principal.getName(), contactJson);
     }
 
+    // UPDATE FUNCTIONALITY
     @PostMapping("/update")
     public String updateContact(
             @RequestParam String resourceName,
@@ -37,7 +40,6 @@ public class GoogleContactsController {
 
         try {
             googleContactsService.updateContact(resourceName, familyName, email, phoneNumber);
-            System.out.println("Contact updated: " + resourceName);
             return "Contact updated successfully";
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,11 +47,11 @@ public class GoogleContactsController {
         }
     }
 
+    // DELETE FUNCTIONALITY
     @PostMapping("/delete")
     public String deleteContact(@RequestParam String resourceName) {
         try {
             googleContactsService.deleteContact(resourceName);
-            System.out.println("Deleted contact: " + resourceName);
             return "Contact deleted successfully";
         } catch (IOException e) {
             e.printStackTrace();
