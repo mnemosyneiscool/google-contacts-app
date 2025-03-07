@@ -3,6 +3,7 @@ package com.quijote.google_contacts_app.Controller;
 import com.quijote.google_contacts_app.Service.GoogleContactsService;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -35,8 +36,8 @@ public class GoogleContactsController {
     public String updateContact(
             @RequestParam String resourceName,
             @RequestParam String familyName,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String phoneNumber) {
+            @RequestParam(required = false) List<String> email,
+            @RequestParam(required = false) List<String> phoneNumber) {
 
         try {
             googleContactsService.updateContact(resourceName, familyName, email, phoneNumber);

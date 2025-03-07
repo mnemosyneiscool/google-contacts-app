@@ -1,45 +1,182 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" class="h-full">
 <head>
     <title>Google Contacts App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        },
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 100px;
+            font-family: 'Inter', sans-serif;
         }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        .login-animation {
+            animation: fadeIn 0.8s ease-out forwards, slideUp 0.8s ease-out forwards;
         }
-        .btn-google {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #db4437;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            cursor: pointer;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
-        .btn-google:hover {
-            background-color: #c1351d;
+        @keyframes slideUp {
+            from { transform: translateY(20px); }
+            to { transform: translateY(0); }
+        }
+        .bg-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230ea5e9' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
     </style>
 </head>
-<body>
-
-    <div class="container">
-        <h2>Welcome to Google Contacts Integration</h2>
-        <p>Sign in with Google to access your contacts.</p>
-
-        <a href="/oauth2/authorization/google" class="btn-google">Sign in with Google</a>
+<body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white">
+    <div class="flex min-h-full flex-col justify-center">
+        <div class="mx-auto w-full max-w-6xl">
+            <div class="flex flex-col lg:flex-row overflow-hidden bg-white dark:bg-slate-800 rounded-2xl shadow-xl">
+                <!-- Left side - Image and branding -->
+                <div class="lg:w-1/2 relative bg-primary-600 text-white">
+                    <div class="absolute inset-0 bg-pattern opacity-10"></div>
+                    <div class="relative h-full flex flex-col justify-between p-8 lg:p-12">
+                        <div class="mb-8">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                <h1 class="ml-3 text-2xl font-bold">ContactHub</h1>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-grow flex items-center justify-center">
+                            <div class="text-center lg:text-left max-w-md mx-auto lg:mx-0">
+                                <h2 class="text-3xl lg:text-4xl font-bold mb-4">Manage your contacts with ease</h2>
+                                <p class="text-primary-100 mb-6">Access, organize, and sync your Google contacts in one beautiful interface.</p>
+                                <div class="flex flex-wrap gap-3 justify-center lg:justify-start">
+                                    <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                        </svg>
+                                        <span>Easy Sync</span>
+                                    </div>
+                                    <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                        </svg>
+                                        <span>Secure</span>
+                                    </div>
+                                    <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                                        </svg>
+                                        <span>Simple</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 text-sm text-primary-100">
+                            <p>© 2025 ContactHub. All rights reserved.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right side - Login form -->
+                <div class="lg:w-1/2 p-8 lg:p-12 flex items-center">
+                    <div class="w-full max-w-md mx-auto login-animation">
+                        <div class="text-center mb-10">
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Welcome Back</h2>
+                            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Sign in to access your contacts</p>
+                        </div>
+                        
+                        <div class="bg-slate-100 dark:bg-slate-700/30 rounded-xl p-6 mb-6">
+                            <div class="flex items-start mb-4">
+                                <div class="flex-shrink-0 mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-slate-800 dark:text-slate-200">Why sign in with Google?</h3>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                                        We use Google authentication to securely access your contacts. We don't store your password.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <a href="/oauth2/authorization/google" class="flex items-center justify-center w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors duration-150 group">
+                                <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                </svg>
+                                <span class="text-sm font-medium">Sign in with Google</span>
+                            </a>
+                            
+                            <div class="text-center">
+                                <span class="text-xs text-slate-500 dark:text-slate-400">
+                                    By signing in, you agree to our 
+                                    <a href="#" class="text-primary-600 dark:text-primary-400 hover:underline">Terms of Service</a> and 
+                                    <a href="#" class="text-primary-600 dark:text-primary-400 hover:underline">Privacy Policy</a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="mt-8 text-center">
+                <div class="flex justify-center space-x-6 text-sm text-slate-500 dark:text-slate-400">
+                    <a href="#" class="hover:text-primary-600 dark:hover:text-primary-400">Help</a>
+                    <a href="#" class="hover:text-primary-600 dark:hover:text-primary-400">Privacy</a>
+                    <a href="#" class="hover:text-primary-600 dark:hover:text-primary-400">Terms</a>
+                </div>
+            </div>
+        </div>
     </div>
-
 </body>
 </html>

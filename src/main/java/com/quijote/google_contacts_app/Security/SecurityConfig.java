@@ -15,7 +15,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity)
             throws Exception {
         return httpSecurity
-                .authorizeHttpRequests(oauth -> oauth.anyRequest().authenticated())
+                .authorizeHttpRequests(oauth -> oauth
+                .requestMatchers("/", "/error").permitAll()
+                .anyRequest().authenticated())
                 .oauth2Login(oauth2login -> oauth2login.defaultSuccessUrl("/contacts",true))
                 .logout(logout-> logout.logoutSuccessUrl("/"))
                 .csrf(AbstractHttpConfigurer::disable)

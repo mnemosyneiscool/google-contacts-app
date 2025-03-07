@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="h-full">
+<head>
+    <title>Oops! - ContactHub</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        },
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'spin-slow': 'spin 8s linear infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .error-bg {
+            background-image: radial-gradient(circle at 10% 20%, rgb(239, 246, 249) 0%, rgb(206, 239, 253) 90%);
+        }
+        
+        .dark .error-bg {
+            background-image: radial-gradient(circle at 10% 20%, rgb(21, 30, 45) 0%, rgb(11, 31, 63) 90%);
+        }
+        
+        .astronaut {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .planet {
+            animation: spin-slow 20s linear infinite;
+        }
+        
+        .star {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+        
+        .error-code {
+            font-size: 120px;
+            line-height: 1;
+            font-weight: 800;
+            background: linear-gradient(to right, #0ea5e9, #6366f1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .dark .error-code {
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="h-full error-bg text-slate-900 dark:text-white">
+    <div class="relative min-h-screen flex flex-col items-center justify-center p-4">
+        <!-- Decorative elements -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="star absolute top-1/4 left-1/4 w-2 h-2 bg-yellow-300 rounded-full"></div>
+            <div class="star absolute top-1/3 left-2/3 w-3 h-3 bg-yellow-300 rounded-full"></div>
+            <div class="star absolute top-2/3 left-1/5 w-2 h-2 bg-yellow-300 rounded-full"></div>
+            <div class="star absolute top-1/2 left-3/4 w-1 h-1 bg-yellow-300 rounded-full"></div>
+            <div class="star absolute top-3/4 left-1/3 w-2 h-2 bg-yellow-300 rounded-full"></div>
+            
+            <!-- Floating planet -->
+            <div class="planet absolute -bottom-20 -right-20 w-64 h-64 bg-gradient-to-br from-indigo-300 to-purple-400 dark:from-indigo-600 dark:to-purple-800 rounded-full opacity-50"></div>
+            
+            <!-- Small floating elements -->
+            <div class="absolute top-1/4 right-1/4 w-8 h-8 bg-primary-300 dark:bg-primary-700 rounded-full animate-float opacity-60" style="animation-delay: 1s;"></div>
+            <div class="absolute bottom-1/3 left-1/3 w-12 h-12 bg-pink-300 dark:bg-pink-700 rounded-full animate-float opacity-60" style="animation-delay: 2s;"></div>
+            <div class="absolute top-2/3 right-1/3 w-6 h-6 bg-yellow-300 dark:bg-yellow-600 rounded-full animate-float opacity-60" style="animation-delay: 0.5s;"></div>
+        </div>
+        
+        <div class="container mx-auto max-w-3xl relative z-10">
+            <div class="text-center mb-8">
+                <div class="astronaut mx-auto w-48 h-48 mb-6">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#E0F2FE" class="dark:fill-slate-700"/>
+                        <path d="M7 8H17C17.5523 8 18 8.44772 18 9V15C18 15.5523 17.5523 16 17 16H7C6.44772 16 6 15.5523 6 15V9C6 8.44772 6.44772 8 7 8Z" fill="#BAE6FD" class="dark:fill-slate-600"/>
+                        <path d="M12 16V19" stroke="#0EA5E9" stroke-width="2" stroke-linecap="round" class="dark:stroke-primary-400"/>
+                        <path d="M8 19H16" stroke="#0EA5E9" stroke-width="2" stroke-linecap="round" class="dark:stroke-primary-400"/>
+                        <path d="M9 12H9.01" stroke="#0C4A6E" stroke-width="2" stroke-linecap="round" class="dark:stroke-white"/>
+                        <path d="M15 12H15.01" stroke="#0C4A6E" stroke-width="2" stroke-linecap="round" class="dark:stroke-white"/>
+                        <path d="M10 16H14" stroke="#0C4A6E" stroke-width="2" stroke-linecap="round" class="dark:stroke-white"/>
+                    </svg>
+                </div>
+                
+                <h1 class="error-code" id="errorCode">404</h1>
+                <h2 class="text-2xl md:text-3xl font-bold mt-4 mb-2" id="errorTitle">Page Not Found</h2>
+                <p class="text-slate-600 dark:text-slate-300 max-w-lg mx-auto mb-8" id="errorMessage">
+                    The page you're looking for doesn't exist or has been moved to another dimension.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium rounded-lg transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        Go Home
+                    </a>
+                    <a href="/oauth2/authorization/google" class="px-6 py-3 bg-white hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-medium rounded-lg transition-colors shadow-lg hover:shadow-xl border border-slate-200 dark:border-slate-600 transform hover:-translate-y-1 flex items-center justify-center">
+                        <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        Sign in with Google
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Interactive element -->
+            <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-xl max-w-lg mx-auto">
+                <h3 class="text-lg font-semibold mb-3">Did you know?</h3>
+                <p class="text-slate-600 dark:text-slate-300 mb-4" id="funFact">
+                    The 404 error code comes from the early days of the internet. It means the page was "not found" on the server.
+                </p>
+                <button id="newFactBtn" class="text-primary-600 dark:text-primary-400 font-medium hover:underline flex items-center">
+                    <span>Show another fact</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Theme toggle -->
+            <div class="absolute top-4 right-4">
+                <button id="themeToggle" class="p-2 rounded-full bg-white/30 dark:bg-slate-700/30 backdrop-blur-sm">
+                    <!-- Sun icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500 dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <!-- Moon icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-200 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Parse URL parameters to get error type
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorType = urlParams.get('error') || 'authentication';
+        
+        // Error configurations
+        const errorConfigs = {
+            'authentication': {
+                code: '401',
+                title: 'Authentication Required',
+                message: 'You need to sign in to access this resource. Please authenticate with your Google account.',
+                fact: 'The 401 error means "Unauthorized" - the server knows who you are, but you don\'t have permission to access the resource.'
+            },
+            'forbidden': {
+                code: '403',
+                title: 'Access Forbidden',
+                message: 'You don\'t have permission to access this resource. Please contact the administrator if you believe this is an error.',
+                fact: 'The 403 error means "Forbidden" - the server understands your request but refuses to authorize it.'
+            },
+            'not-found': {
+                code: '404',
+                title: 'Page Not Found',
+                message: 'The page you\'re looking for doesn\'t exist or has been moved to another dimension.',
+                fact: 'The 404 error code comes from the early days of the internet. It means the page was "not found" on the server.'
+            },
+            'server-error': {
+                code: '500',
+                title: 'Server Error',
+                message: 'Something went wrong on our end. Our team has been notified and is working to fix the issue.',
+                fact: 'The 500 error means "Internal Server Error" - something has gone wrong on the website\'s server, but the server couldn\'t be more specific about what the exact problem is.'
+            },
+            'timeout': {
+                code: '504',
+                title: 'Gateway Timeout',
+                message: 'The server took too long to respond. Please try again later.',
+                fact: 'The 504 error means "Gateway Timeout" - the server was acting as a gateway or proxy and didn\'t receive a timely response from the upstream server.'
+            }
+        };
+        
+        // Set default error if not found in our configs
+        const currentError = errorConfigs[errorType] || errorConfigs['authentication'];
+        
+        // Update the DOM with error information
+        document.getElementById('errorCode').textContent = currentError.code;
+        document.getElementById('errorTitle').textContent = currentError.title;
+        document.getElementById('errorMessage').textContent = currentError.message;
+        document.getElementById('funFact').textContent = currentError.fact;
+        
+        // Fun facts about errors and the internet
+        const funFacts = [
+            "The very first website is still online! You can visit it at http://info.cern.ch/.",
+            "The term 'bug' to describe a computer glitch originated when a moth got trapped in a relay of the Harvard Mark II computer in 1947.",
+            "The 404 error code was chosen because room 404 at CERN was where the World Wide Web's central database was located.",
+            "The 418 error code means 'I'm a teapot' and was an April Fool's joke that became a standard.",
+            "The average person spends about 6 hours and 42 minutes online each day.",
+            "Over 500 hours of video are uploaded to YouTube every minute.",
+            "The first ever email was sent in 1971 by Ray Tomlinson, but he doesn't remember what it said.",
+            "The most common passwords are still '123456' and 'password', despite years of security warnings.",
+            "The first image ever uploaded to the web was a photo of a comedy band called 'Les Horribles Cernettes'.",
+            "The internet weighs about 50 grams, equivalent to a strawberry, according to calculations based on the weight of electrons in motion.",
+            "The first ever domain name registered was Symbolics.com on March 15, 1985.",
+            "About 70% of all the world's web traffic goes through Northern Virginia.",
+            "The first ever banner ad appeared in 1994 on HotWired.com and had a 44% click-through rate.",
+            "The term 'surfing the internet' was coined by a librarian named Jean Armour Polly in 1992.",
+            "The entire internet could be saved on a 100TB hard drive in 1994. Today, it would take millions of those drives."
+        ];
+        
+        // Show a random fun fact when button is clicked
+        document.getElementById('newFactBtn').addEventListener('click', function() {
+            const factElement = document.getElementById('funFact');
+            let newFact;
+            
+            // Make sure we don't show the same fact twice in a row
+            do {
+                newFact = funFacts[Math.floor(Math.random() * funFacts.length)];
+            } while (newFact === factElement.textContent);
+            
+            // Animate the fact change
+            factElement.style.opacity = '0';
+            setTimeout(() => {
+                factElement.textContent = newFact;
+                factElement.style.opacity = '1';
+            }, 300);
+        });
+        
+        // Theme toggle functionality
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            document.documentElement.classList.toggle('dark');
+            
+            // Save preference
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</body>
+</html>
