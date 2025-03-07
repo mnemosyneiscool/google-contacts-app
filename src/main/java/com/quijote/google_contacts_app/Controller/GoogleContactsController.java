@@ -3,7 +3,6 @@ package com.quijote.google_contacts_app.Controller;
 import com.quijote.google_contacts_app.Service.GoogleContactsService;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -33,18 +32,13 @@ public class GoogleContactsController {
 
     // UPDATE FUNCTIONALITY
     @PostMapping("/update")
-    public String updateContact(
-            @RequestParam String resourceName,
-            @RequestParam String familyName,
-            @RequestParam(required = false) List<String> email,
-            @RequestParam(required = false) List<String> phoneNumber) {
-
+    public String updateContact(@AuthenticationPrincipal OAuth2User principal, @RequestBody ContactUpdateRequest request) {
         try {
-            googleContactsService.updateContact(resourceName, familyName, email, phoneNumber);
+            googleContactsService.updateContact(request.getResourceName(), request.getFamilyName(), request.getEmail(), request.getPhoneNumber());
             return "Contact updated successfully";
         } catch (IOException e) {
             e.printStackTrace();
-            return "error";
+            return "Error updating contact";
         }
     }
 

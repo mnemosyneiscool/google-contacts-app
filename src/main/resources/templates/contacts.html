@@ -131,7 +131,7 @@
         </div>
     </header>
 
-    <!-- Main content -->
+    <!-- Contact View -->
     <main class="container mx-auto px-4 pt-20 pb-24 h-full flex items-center justify-center">
         <div class="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700 transition-all">
             <!-- Search bar and Add Contact button -->
@@ -308,7 +308,13 @@
 
                         let currentLetter = '';
                         sortedContacts.forEach(contact => {
-                            let name = contact.names ? contact.names[0].displayName : 'No Name';
+                            let name = (contact.names && contact.names.length > 0 && contact.names[0].displayName)
+                            ? contact.names[0].displayName
+                            : (contact.phoneNumbers && contact.phoneNumbers.length > 0)
+                            ? contact.phoneNumbers[0].value
+                            : (contact.emailAddresses && contact.emailAddresses.length > 0)
+                            ? contact.emailAddresses[0].value
+                            : 'No Name';                        
                             let phones = contact.phoneNumbers && contact.phoneNumbers.length > 0 ? contact.phoneNumbers.map(p => p.value).join(',') : 'No Phone';
                             let primaryPhone = contact.phoneNumbers && contact.phoneNumbers.length > 0 ? contact.phoneNumbers[0].value : 'No Phone';
                             let emails = contact.emailAddresses && contact.emailAddresses.length > 0 ? contact.emailAddresses.map(e => e.value).join(',') : 'No Email';
@@ -479,37 +485,32 @@
         }
 
         function addContact() {
-            const name = document.getElementById("contact-name").value;
+            const name = document.getElementById("contact-name").value.trim();
             const phoneElements = document.getElementById("contact-phones").getElementsByTagName("input");
             const emailElements = document.getElementById("contact-emails").getElementsByTagName("input");
-
-            const phones = Array.from(phoneElements).map(input => input.value).filter(value => value);
-            const emails = Array.from(emailElements).map(input => input.value).filter(value => value);
-
-            // Reset field styles
-            document.getElementById("contact-name").style.borderColor = "";
-            Array.from(phoneElements).forEach(input => input.style.borderColor = "");
-            Array.from(emailElements).forEach(input => input.style.borderColor = "");
-
-            // CHECK FOR EMPTY FIELDS
-            if (!name || phones.length === 0 || emails.length === 0) {
-                alert("All fields are required.");
+        
+            const phones = Array.from(phoneElements).map(input => input.value.trim()).filter(value => value);
+            const emails = Array.from(emailElements).map(input => input.value.trim()).filter(value => value);
+        
+            // Validation: At least one field must be filled
+            if (!name && phones.length === 0 && emails.length === 0) {
+                alert("You must enter at least one field (name, phone, or email).");
                 return;
             }
-
-            // Validate email
+        
+            // Validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emails.every(email => emailRegex.test(email))) {
-                alert("Invalid email address.");
+                alert("Invalid email format.");
                 return;
             }
-
+        
             const contactJson = {
-                names: [{ familyName: name }],
-                phoneNumbers: phones.map(phone => ({ value: phone })),
-                emailAddresses: emails.map(email => ({ value: email }))
+                names: name ? [{ familyName: name }] : [], // Handle no-name contacts
+                phoneNumbers: phones.length > 0 ? phones.map(phone => ({ value: phone })) : null,
+                emailAddresses: emails.length > 0 ? emails.map(email => ({ value: email })) : null
             };
-
+        
             fetch("/api/contacts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -524,44 +525,26 @@
             const name = document.getElementById("contact-name").value;
             const phoneElements = document.getElementById("contact-phones").getElementsByTagName("input");
             const emailElements = document.getElementById("contact-emails").getElementsByTagName("input");
-
-            const phones = Array.from(phoneElements).map(input => input.value).filter(value => value);
-            const emails = Array.from(emailElements).map(input => input.value).filter(value => value);
-
-            // Reset field styles
-            document.getElementById("contact-name").style.borderColor = "";
-            Array.from(phoneElements).forEach(input => input.style.borderColor = "");
-            Array.from(emailElements).forEach(input => input.style.borderColor = "");
-
-            // CHECK FOR EMPTY FIELDS
-            if (!name || phones.length === 0 || emails.length === 0) {
-                alert("All fields are required.");
-                return;
-            }
-
-            // Validate email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emails.every(email => emailRegex.test(email))) {
-                alert("Invalid email address.");
-                return;
-            }
-
+        
+            const phones = Array.from(phoneElements).map(input => input.value.trim()).filter(value => value);
+            const emails = Array.from(emailElements).map(input => input.value.trim()).filter(value => value);
+        
             const contactJson = {
                 resourceName: resourceName,
                 familyName: name,
-                phoneNumbers: phones,
-                emailAddresses: emails
+                email: emails,
+                phoneNumber: phones
             };
-
+        
             fetch("/api/contacts/update", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams(contactJson)
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(contactJson)
             })
             .then(response => response.text())
             .then(() => location.reload())
             .catch(error => console.error("Error updating contact:", error));
-        }
+        }        
 
         function deleteContact(resourceName) {
             if (confirm("Are you sure you want to delete this contact?")) {

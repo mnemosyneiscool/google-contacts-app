@@ -1,8 +1,8 @@
 package com.quijote.google_contacts_app.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.*;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -80,17 +80,47 @@ public class GoogleContactsService {
         Person existingContact = peopleService.people().get(resourceName)
                 .setPersonFields("names,emailAddresses,phoneNumbers")
                 .execute();
-
+    
+        // Ensure existing lists are not null
+        List<EmailAddress> updatedEmails = existingContact.getEmailAddresses() != null ? new ArrayList<>(existingContact.getEmailAddresses()) : new ArrayList<>();
+        List<PhoneNumber> updatedPhones = existingContact.getPhoneNumbers() != null ? new ArrayList<>(existingContact.getPhoneNumbers()) : new ArrayList<>();
+    
+        // Remove emails that are no longer present in the request
+        if (emails != null) {
+            updatedEmails.removeIf(email -> !emails.contains(email.getValue()));
+    
+            // Add new emails if they do not already exist
+            for (String email : emails) {
+                if (updatedEmails.stream().noneMatch(e -> e.getValue().equals(email))) {
+                    updatedEmails.add(new EmailAddress().setValue(email));
+                }
+            }
+        }
+    
+        // Remove phone numbers that are no longer present in the request
+        if (phoneNumbers != null) {
+            updatedPhones.removeIf(phone -> !phoneNumbers.contains(phone.getValue()));
+    
+            // Add new phone numbers if they do not already exist
+            for (String phone : phoneNumbers) {
+                if (updatedPhones.stream().noneMatch(p -> p.getValue().equals(phone))) {
+                    updatedPhones.add(new PhoneNumber().setValue(phone));
+                }
+            }
+        }
+    
+        // Create updated contact object
         Person updatedContact = new Person()
                 .setEtag(existingContact.getEtag())
-                .setNames(List.of(new Name().setGivenName(null).setFamilyName(familyName)))
-                .setEmailAddresses(emails != null && !emails.isEmpty() ? emails.stream().map(email -> new EmailAddress().setValue(email)).collect(Collectors.toList()) : null)
-                .setPhoneNumbers(phoneNumbers != null && !phoneNumbers.isEmpty() ? phoneNumbers.stream().map(phone -> new PhoneNumber().setValue(phone)).collect(Collectors.toList()) : null);
-
+                .setNames(List.of(new Name().setFamilyName(familyName)))
+                .setEmailAddresses(updatedEmails.isEmpty() ? null : updatedEmails)
+                .setPhoneNumbers(updatedPhones.isEmpty() ? null : updatedPhones);
+    
+        // Send update request
         peopleService.people().updateContact(resourceName, updatedContact)
                 .setUpdatePersonFields("names,emailAddresses,phoneNumbers")
                 .execute();
-    }
+    }        
 
     // DELETE FUNCTIONALITY
     public void deleteContact(String resourceName) throws IOException {
